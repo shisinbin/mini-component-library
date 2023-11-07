@@ -97,3 +97,81 @@ This component also includes a function, `getDisplayedValue`. This component use
 This component also uses the `Icon` component — the specific ID will be provided as a prop.
 
 This component requires bold text. You can achieve this look by using `font-weight: 700`.
+
+## Note to self
+
+1. **Progress Bar**
+
+   Three `<div>` elements - one the bar showing the 'progress', the other an outer wrapper in which we apply a `box-shadow` effect, and the last an inner 'trimmer', that trims the inner bar's overflow so that we get these nice rounded corners. There were also accessibility concerns covered with using `role='progressbar'` and some aria attributes. Also, dynamically styling our components using an object built outside the functional component, error handling, and using CSS variables.
+
+2. **Select**
+
+   Wild exercise. Here, Josh combines the native `<select>` with a 'presentational bit'. We get the nice form functionality, including the dropdown stuff which is both very nice across all browsers/OS's and is free! But we are not limited in terms of design.
+
+   It's kinda like putting this fake but pretty looking sheen over a real `<select>`.
+
+   Here's the structure:
+
+   ```
+   <Wrapper>
+     <NativeSelect value={value} onChange={onChange}>
+       {children}
+     </NativeSelect>
+     <PresentationalBit>
+       {displayedValue}
+       <IconWrapper style={{ '--size': 24 + 'px' }}>
+         <Icon id='chevron-down' strokeWidth={1} size={24} />
+       </IconWrapper>
+     </PresentationalBit>
+   </Wrapper>
+   ```
+
+   Other noteworthy aspects of this exercise:
+
+   - `pointer-events: none` removes any potential pointer events from an element. For example, if you have an element that is layered on top and 'blocking' another element that does have a pointer event then you can remove this blocking by using this declaration.
+   - Aligning absolutely positioned elements centrally along the vertical trick: set `top` and `bottom` to 0, and `margin: auto`. Requires dimensions.
+   - Setting `opacity: 0` achieves the effect of `display: none` with the important difference that users can still interact with the element. In this case, this fit the bill.
+   - Next sibling combinator. e.g.
+
+     ```
+     img + p {
+      font-weight: bold;
+     }
+     ```
+
+     will target any `<p>` element that _directly_ follows an `<img>` element.
+
+     If you wanted to target _any_ subsequent sibling, we use `~` instead of `+`:
+
+     ```
+     img ~ p {
+       color: red;
+     }
+     ```
+
+     In the context of this exercise, the next sibling combinator was used like this:
+
+     ```
+     const PresentationalBit = styled.div`
+       ...
+
+       ${NativeSelect}:hover + & {
+         color: ${COLORS.black};
+       }
+     ```
+
+     So this is effectively adding the rule:
+
+     ```
+     select:hover + div {
+       color: ...
+     }
+     ```
+
+     which targets any `<div>` that directly follows a hovered `<select>` (including the styled-component class names that are generated, of course).
+
+     Worth noting that in styled-components, `&` refers to all instances of the component.
+
+3. **IconInput**
+
+   This was a bit more straightforward. I suppose a couple of noteworthy aspects were how the `<label>` wrapped the `<input>`, and how we can target the placeholder text with the `::placeholder` pseudo element.
